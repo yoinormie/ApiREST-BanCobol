@@ -1,3 +1,13 @@
 spring:
   application:
     name: BanCobolApiREST
+  datasource:
+    url: jdbc:postgresql://localhost:32768/bankapp
+    password: TuPasswordSegura123
+    username: app_user
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
