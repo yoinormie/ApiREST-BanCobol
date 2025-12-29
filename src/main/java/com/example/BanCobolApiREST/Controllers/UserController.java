@@ -17,4 +17,8 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/test")
+    public ResponseEntity<?> test (@RequestParam Integer n1, @RequestParam Integer n2){
+        return ResponseEntity.ok(userService.ejecutarSuma(n1, n2));
+    }
 }
