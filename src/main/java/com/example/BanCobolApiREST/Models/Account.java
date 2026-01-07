@@ -1,11 +1,15 @@
 package com.example.BanCobolApiREST.Models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "accounts")
+@Getter
+@Setter
 public class Account {
 
     @Id
