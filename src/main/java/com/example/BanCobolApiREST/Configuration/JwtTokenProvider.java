@@ -1,6 +1,7 @@
 package com.example.BanCobolApiREST.Configuration;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -31,5 +32,14 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public boolean isValidToken(String token){
+        try{
+            getClaims(token);
+            return true;
+        }catch (JwtException | IllegalArgumentException e){
+            return false;
+        }
     }
 }
