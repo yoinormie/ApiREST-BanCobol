@@ -5,6 +5,7 @@ import com.example.BanCobolApiREST.Mapper.AccountMapper;
 import com.example.BanCobolApiREST.Models.Account;
 import com.example.BanCobolApiREST.Repositories.AccountRepository;
 import com.example.BanCobolApiREST.Utils.StringFormatUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class AccountService {
         accountRepository.save(account);
     }
 
+    @Transactional
     public void addBalance(BigDecimal amount, String accountTarget){
         BigDecimal targetBalance = accountRepository.findBalanceByAccountNumber(accountTarget).orElseThrow(RuntimeException::new);
         String programParameters = stringFormatUtils.formatString(targetBalance) + stringFormatUtils.formatString(amount);
@@ -68,6 +70,7 @@ public class AccountService {
 
     }
 
+    @Transactional
     public void subtractBalance(BigDecimal amount, String accountTarget){
         BigDecimal targetBalance = accountRepository.findBalanceByAccountNumber(accountTarget).orElseThrow(RuntimeException::new);
         String programParameters = stringFormatUtils.formatString(targetBalance) + stringFormatUtils.formatString(amount);
