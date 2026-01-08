@@ -1,5 +1,6 @@
 package com.example.BanCobolApiREST.Controllers;
 
+import com.example.BanCobolApiREST.DTO.LoginRequest;
 import com.example.BanCobolApiREST.DTO.NewUser;
 import com.example.BanCobolApiREST.Services.UserService;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,15 @@ public class UserController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
+        try {
+            return ResponseEntity.ok(userService.newLogin(loginRequest));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 }
