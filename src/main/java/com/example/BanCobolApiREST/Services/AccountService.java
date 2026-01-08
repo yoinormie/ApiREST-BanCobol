@@ -57,7 +57,6 @@ public class AccountService {
                 throw new RuntimeException("Error en COBOL o salida no válida: " + resultado);
             }
 
-            System.out.println("good");
             int accountsAffected = accountRepository.updateBalanceByAccountNumber(accountTarget, stringFormatUtils.formatToNumber(resultado));
 
             if(accountsAffected == 0){
@@ -91,7 +90,6 @@ public class AccountService {
                 throw new RuntimeException("Error en COBOL o salida no válida: " + resultado);
             }
 
-            System.out.println("good");
             int accountsAffected = accountRepository.updateBalanceByAccountNumber(accountTarget, stringFormatUtils.formatToNumber(resultado));
 
             if(accountsAffected == 0){
