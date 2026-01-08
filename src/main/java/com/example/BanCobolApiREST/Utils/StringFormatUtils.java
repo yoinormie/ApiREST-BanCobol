@@ -23,14 +23,17 @@ public class StringFormatUtils {
         return String.format(specificFormat, amountTransformed);
     }
 
-    public BigDecimal formatToNumber(String programResult){
+    public BigDecimal formatToNumber(String programResult) {
         if (programResult == null || programResult.trim().isEmpty()) {
-            return BigDecimal.ZERO;
+            throw new IllegalArgumentException("Resultado COBOL vacío");
         }
-        BigDecimal numberResult = new BigDecimal(programResult.trim());
-        //
-        return numberResult.movePointLeft(2).setScale(2, RoundingMode.HALF_UP);
+
+        String normalized = programResult.trim()
+                .replaceFirst("^0+(?!$)", "");
+
+        return new BigDecimal(normalized);
     }
+
 
     public static String generateAccountNumber() {
         int randomDigits = TOTAL_LENGTH - PREFIX.length();
