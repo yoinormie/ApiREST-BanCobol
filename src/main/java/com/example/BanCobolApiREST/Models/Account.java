@@ -1,6 +1,6 @@
 package com.example.BanCobolApiREST.Models;
 
-import com.example.BanCobolApiREST.AccountType;
+import com.example.BanCobolApiREST.Enums.AccountType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
