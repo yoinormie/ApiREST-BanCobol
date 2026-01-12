@@ -1,61 +1,72 @@
 package com.example.BanCobolApiREST.Configuration;
 
-import org.springframework.http.HttpStatus;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+
+import java.io.IOException;
 import java.util.List;
 
 @Component
-public class JwtAuthenticationWebFilter implements WebFilter {
+public class JwtAuthenticationWebFilter extends OncePerRequestFilter  {
 
     private final JwtTokenProvider jwtUtil;
 
-    // Rutas que no requieren token
-    private final List<String> publicPaths = List.of("/security/login", "/security/register");
+    private static final List<String> PUBLIC_PATHS = List.of(
+            "/users/",
+            "/account/createNewAccount"
+    );
 
     public JwtAuthenticationWebFilter(JwtTokenProvider jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        String path = exchange.getRequest().getPath().value();
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        // Si es ruta pública, pasar
-        if (publicPaths.stream().anyMatch(path::startsWith)) {
-            return chain.filter(exchange);
+        String path = request.getRequestURI();
+
+        // Rutas públicas
+        if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         String token = authHeader.substring(7);
-        var claims = jwtUtil.isValidToken(token);
-        UsernamePasswordAuthenticationToken auth = null;
-        if (!claims) {
-            System.out.println("Sin claims");
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
-        }else {
-            // Crear objeto Authentication con lo que necesites (usuario + roles)
-            auth = new UsernamePasswordAuthenticationToken(
-                    jwtUtil.getClaims(token).getSubject(),
-                    null,
-                    List.of()
-            );
+
+        if (!jwtUtil.isValidToken(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
-        return chain.filter(exchange)
-                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(new SecurityContextImpl(auth))));
+
+        String username = jwtUtil.getClaims(token).getSubject();
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        List.of()
+                );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        filterChain.doFilter(request, response);
     }
 }
